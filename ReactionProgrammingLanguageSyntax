@@ -1,0 +1,58 @@
+// SystemPipes.main is the main pipe that starts when the program is run. Pushes an array of strings 
+
+string secondArg = pipe SystemPipes.main[1]; // equivalent to pipe SystemPipes.main.at(0)[1]
+boolean makeAddition = pipe printArgs.at(1);
+
+pipe SystemPipes.main printArgs(string[] args): int, boolean{
+    println(args[0]);
+    pump 32, true;
+}
+
+pipe pipes.printArgs getNum(int num, boolean add) {
+    int x = 5;
+    x = 5 + num;
+    println(x);        
+}
+
+pipe (secondArg, makeAddition) fromVariables(string v1, boolean v2) {
+    filt v2 == true;
+    println("This happens after the SystemPipes.main and printArgs pipes push their results");
+}
+
+
+=== translates to (java representation)
+
+static boolean makeAddition;
+static String secondArg;
+
+public static void main(String[] args){
+    printArgs(args);
+    secondArg = args[1];    
+    System.out.println("This happens after the SystemPipes.main and printArgs pipes push their results");
+}
+
+public static void printArgs(String[] args){
+    System.out.println(args[0]);
+    getNum(32, true);    
+    makeAddition = true;
+}
+
+public static void getNum(int num, boolean add){
+    int x = 5;
+    x = 5 + num;    
+    System.out.println(x); 
+}
+
+
+===========================
+
+pipe (SystemPipes.main, pipes.bar) foo(){ // compiler should see this as a Cyclical Dependency Error
+    print("Foo");
+}
+
+pipe pipes.foo bar(){
+    print("Bar")
+}
+
+// Error: Cyclical Dependency Error found on pipes foo, bar
+// main -> foo <=> bar NOT ALLOWED
