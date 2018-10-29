@@ -29,9 +29,12 @@ llvm::BasicBlock*  GenVisitor::visit(NBlock* node, uint64_t flag){
 				break;
 			case STMT_TYPE_ASSIGNMENT:
 				visit((NAssignment*)stmt,V_FLAG_NONE);
-				break;				
+				break;	
+			case STMT_TYPE_VAR_DECL:
+				visit((NVariableDeclaration*)stmt, V_FLAG_NONE);
+				break;
 			default:
-				printf("Error: unexpected statement type: %s\n",stmt->statement_type);
+				printf("Error: unexpected statement type: %d\n",stmt->statement_type);
 				break;
 		}			
 	}	

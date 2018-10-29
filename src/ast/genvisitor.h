@@ -2,6 +2,7 @@
 #include <iostream>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Module.h>
 #include <stack>
 #include <vector>
 #include <map>
@@ -57,6 +58,11 @@ class GenVisitor {
 	llvm::Value* visit(NExpression* expr, uint64_t flag);
 
 	llvm::Type* getTypeFromName(const char* name);	
+
+	void build(){
+		if(currentModule)
+			currentModule->dump();
+	}
 
 	private:
 	llvm::IRBuilder<>* _builder;

@@ -14,6 +14,7 @@
 #include <string.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
 
 #include "ast/ast.h"
 
@@ -82,13 +83,12 @@ void print_indent(int depth) {
   }
 }
 
-void readArgs(int argc, char** argv){
-  yydebug = 1;
+void readArgs(int argc, char** argv){  
   for(int i = 1; i < argc;i++){
     char* arg = argv[i];    
     printf("Check arg: %s\n",arg);
-    if(arg == "-v") verbose = 1;
-    else if(arg == "-d"){
+    if(strcmp(arg,"-v") == 0) verbose = 1;
+    else if(strcmp(arg,"-d") == 0){
       printf("Debug mode on\n");
       yydebug = 1;
     }
@@ -104,23 +104,11 @@ int main(int argc, char **argv) {
   int ret = 0;
   ret = yyparse();
   printf("--- PARSE COMPLETE: ret:%d ---\n", ret);
-  llvm::LLVMContext& context = llvm::getGlobalContext();
-  llvm::IRBuilder<> builder(context);
+  llvm::LLVMContext& context = llvm::getGlobalContext();  
+  llvm::IRBuilder<> builder(context);    
 
   GenVisitor generator(&builder);  
-  generator.visit(root,V_FLAG_ENTER);
-
-  // if (nodes) {
-  //   print_node(nodes, 0);
-  // }
-  // while (nodes) {
-  //   tmp = nodes;
-  //   nodes = tmp->next;
-  //   if (tmp->own_string) {
-  //     free((void*)tmp->name);
-  //   }
-  //   free(tmp);
-  // }
+  generator.visit(root,V_FLAG_ENTER);  
   return ret;
 }
 
