@@ -1,5 +1,6 @@
 #include "genvisitor.h"
 
+#include <iostream>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/IRBuilder.h>
@@ -30,7 +31,7 @@ llvm::BasicBlock*  GenVisitor::visit(NBlock* node, uint64_t flag){
 				visit((NAssignment*)stmt,V_FLAG_NONE);
 				break;				
 			default:
-				throw "Error: unexpected statement type";
+				printf("Error: unexpected statement type: %s\n",stmt->statement_type);
 				break;
 		}			
 	}	
@@ -72,7 +73,8 @@ llvm::Value* GenVisitor::visit(NBinaryOp* node, uint64_t flag){
 		case OP_MULT:
 		return _builder->CreateFMul(lhs,rhs);
 		default:
-		throw "Invalid operator provided to expression";
+		printf("Invalid operator provided to expression\n");
+		exit(0);
 	}
 }
 
@@ -92,3 +94,10 @@ void GenVisitor::visit(NAssignment* node, uint64_t flag){
 	
 }
 
+llvm::Type* GenVisitor::getTypeFromName(const char* name){
+	if(strcmp(name,"int") == 0){
+		return llvm::Type::getInt32Ty(_builder->getContext());
+	}
+	const llvm::Value* value = _scope.getVar(name);
+	return value->getType();
+}

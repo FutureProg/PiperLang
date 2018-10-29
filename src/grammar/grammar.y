@@ -116,14 +116,14 @@
 %%
 
 document: 
-%empty { $$ = new NBlock();}
-| stmts { $$ = $1;}
+%empty { root = new NBlock();}
+| stmts { root = $1;}
 ;
 
 stmts: 
 stmt			{ $$ = new NBlock();  $$->statements.push_back($1); }
 | stmt ';'		{ $$ = new NBlock();  $$->statements.push_back($1); }
-| stmts ';' stmt { $$->statements.push_back($3); }
+| stmts ';' stmt ';' { $$->statements.push_back($3); }
 ;
 
 stmt:
@@ -132,7 +132,7 @@ block_stmt		{ $$ = $1; }
 ;
 
 assignment: 
-ident '=' expr			{$$ = new NAssignment($1, $3);} // x = 5
+ident '=' expr			{$$ = new NAssignment($1, $3); printf("Create assignment\n");} // x = 5
 | type ident '=' expr  { $$ = new NVariableDeclaration($1, $2, $4); } // int x = 3
 | type ident			{ $$ = new NVariableDeclaration($1, $2); } // int x;
 ;

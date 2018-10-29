@@ -1,1 +1,1 @@
-pipe SystemPipes.main
+int x = 3

@@ -12,10 +12,16 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/LLVMContext.h>
+
 #include "ast/ast.h"
+
+#include "ast/genvisitor.h"
 
 extern int yylex();
 extern int yyparse();
+extern FILE* yyin;
 
 #define PUSHBACK_LEN 4
 
@@ -76,18 +82,34 @@ void print_indent(int depth) {
   }
 }
 
-int main(int argc, char **argv) {
-  if (argc == 2 && strcmp(argv[1], "-v") == 0) {
-    verbose = 1;
-  }else if(argc == 2 && strcmp(argv[1], "-d") == 0){
-    yydebug = 1;    
-  } else {
-    verbose = 0;
+void readArgs(int argc, char** argv){
+  yydebug = 1;
+  for(int i = 1; i < argc;i++){
+    char* arg = argv[i];    
+    printf("Check arg: %s\n",arg);
+    if(arg == "-v") verbose = 1;
+    else if(arg == "-d"){
+      printf("Debug mode on\n");
+      yydebug = 1;
+    }
+    else {
+      yyin = fopen(arg,"r");
+      printf("Opened file %s\n",arg);
+    }
   }
+}
+
+int main(int argc, char **argv) {
+  readArgs(argc,argv);
   int ret = 0;
-  memset(pushback, '\0', PUSHBACK_LEN);
   ret = yyparse();
-  print("--- PARSE COMPLETE: ret:%d, n_nodes:%d ---\n", ret, n_nodes);
+  printf("--- PARSE COMPLETE: ret:%d ---\n", ret);
+  llvm::LLVMContext& context = llvm::getGlobalContext();
+  llvm::IRBuilder<> builder(context);
+
+  GenVisitor generator(&builder);  
+  generator.visit(root,V_FLAG_ENTER);
+
   // if (nodes) {
   //   print_node(nodes, 0);
   // }
@@ -103,5 +125,5 @@ int main(int argc, char **argv) {
 }
 
 void yyerror(char const *s) {
-  fprintf(stderr, "%s\n", s);
+  fprintf(stderr, "Error: %s\n", s);
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/IRBuilder.h>
 #include <stack>
@@ -7,7 +8,7 @@
 
 #include "visitor.h"
 
-typedef struct {
+typedef struct STRUCT_SCOPE{
 	typedef std::map<std::string ,llvm::Value*> stackitem;
 	std::stack<stackitem*> stack;
 	stackitem* currentScope() {		
@@ -15,19 +16,22 @@ typedef struct {
 	};
 	stackitem* open(){
 		stackitem* nstack = new stackitem(*stack.top());
+		return nstack;
 	}
 	void close(){
 		stack.pop();
 	}
 	void addVar(std::string varname, llvm::Value* val){
 		if(currentScope()->find(varname) != currentScope()->end()){
-			throw "Compilation Error: \"" + varname + "\" already declared";
+			printf("Compilation Error: \"%s\" already declared\n",varname.c_str());
+			exit(0);
 		}
-		currentScope()->insert_or_assign(varname, val);
+		currentScope()->insert(std::pair<std::string,llvm::Value*>(varname,val));
 	}
 	llvm::Value* getVar(std::string varname){
 		if(currentScope()->find(varname) == currentScope()->end()){
-			throw "Compilation Error: \"" + varname + "\" not declared";
+			printf("Compilation Error: \"%s\" not declared\n",varname.c_str());
+			exit(0);
 		}
 		return currentScope()->at(varname);
 	}
@@ -50,7 +54,7 @@ class GenVisitor {
 	void visit(NVariableDeclaration* node, uint64_t flag);
 	llvm::Function* visit(NFunction* node, uint64_t flag);
 	void visit(NAssignment* node, uint64_t flag);
-	llvm::Value* GenVisitor::visit(NExpression* expr, uint64_t flag);
+	llvm::Value* visit(NExpression* expr, uint64_t flag);
 
 	llvm::Type* getTypeFromName(const char* name);	
 

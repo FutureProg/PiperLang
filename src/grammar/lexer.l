@@ -127,6 +127,8 @@ module {return MODULE;}
 %    { return '%'; }
 %=   { return PERCENTEQ; }
 
+[\n\t] {/* ignore */}
+
 <<EOF>> { yyterminate(); return 0; }
 
 %%

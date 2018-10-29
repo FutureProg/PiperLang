@@ -36,6 +36,8 @@ enum {
 class NStatement: public Node {
 	public:
 	int statement_type;
+
+	virtual ~NStatement() = default;
 };
 class NExpression: public Node {
 	public:
@@ -63,7 +65,7 @@ class NAssignment: public NStatement {
 	NExpression* lhs;
 	NExpression* rhs;
 	NAssignment(NExpression* lhs, NExpression* rhs): lhs(lhs),rhs(rhs){
-		statement_type = STMT_TYPE_ASSIGNMENT;
+		statement_type = STMT_TYPE_ASSIGNMENT;		
 	}
 };
 
