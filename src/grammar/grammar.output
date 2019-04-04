@@ -57,9 +57,6 @@ Terminals unused in grammar
    '.'
 
 
-State 5 conflicts: 1 shift/reduce
-
-
 Grammar
 
     0 $accept: document $end
@@ -69,7 +66,7 @@ Grammar
 
     3 stmts: stmt
     4      | stmt ';'
-    5      | stmts ';' stmt ';'
+    5      | stmts stmt
 
     6 stmt: block_stmt
     7     | assignment
@@ -151,7 +148,7 @@ $end (0) 0
 '.' (46)
 '/' (47) 14
 ':' (58) 23
-';' (59) 4 5
+';' (59) 4
 '<' (60)
 '=' (61) 8 9
 '>' (62)
@@ -317,11 +314,19 @@ State 3
 State 4
 
     2 document: stmts .
-    5 stmts: stmts . ';' stmt ';'
+    5 stmts: stmts . stmt
 
-    ';'  shift, and go to state 16
+    IDENT  shift, and go to state 1
+    PIPE   shift, and go to state 2
 
     $default  reduce using rule 2 (document)
+
+    stmt        go to state 16
+    assignment  go to state 6
+    block_stmt  go to state 7
+    item_fn     go to state 8
+    type        go to state 9
+    ident       go to state 10
 
 
 State 5
@@ -331,7 +336,6 @@ State 5
 
     ';'  shift, and go to state 17
 
-    ';'       [reduce using rule 3 (stmts)]
     $default  reduce using rule 3 (stmts)
 
 
@@ -422,17 +426,9 @@ State 15
 
 State 16
 
-    5 stmts: stmts ';' . stmt ';'
+    5 stmts: stmts stmt .
 
-    IDENT  shift, and go to state 1
-    PIPE   shift, and go to state 2
-
-    stmt        go to state 24
-    assignment  go to state 6
-    block_stmt  go to state 7
-    item_fn     go to state 8
-    type        go to state 9
-    ident       go to state 10
+    $default  reduce using rule 5 (stmts)
 
 
 State 17
@@ -447,7 +443,7 @@ State 18
     9 assignment: type ident . '=' expr
    10           | type ident .
 
-    '='  shift, and go to state 25
+    '='  shift, and go to state 24
 
     $default  reduce using rule 10 (assignment)
 
@@ -456,21 +452,21 @@ State 19
 
     8 assignment: ident '=' . expr
 
-    LIT_INTEGER  shift, and go to state 26
-    LIT_FLOAT    shift, and go to state 27
-    '('          shift, and go to state 28
-    "true"       shift, and go to state 29
-    "false"      shift, and go to state 30
+    LIT_INTEGER  shift, and go to state 25
+    LIT_FLOAT    shift, and go to state 26
+    '('          shift, and go to state 27
+    "true"       shift, and go to state 28
+    "false"      shift, and go to state 29
 
-    expr  go to state 31
-    lit   go to state 32
+    expr  go to state 30
+    lit   go to state 31
 
 
 State 20
 
    32 fn_sources_params: '(' maybe_fn_sources . ')'
 
-    ')'  shift, and go to state 33
+    ')'  shift, and go to state 32
 
 
 State 21
@@ -478,7 +474,7 @@ State 21
    33 maybe_fn_sources: fn_sources .
    36 fn_sources: fn_sources . ',' fn_source
 
-    ','  shift, and go to state 34
+    ','  shift, and go to state 33
 
     $default  reduce using rule 33 (maybe_fn_sources)
 
@@ -494,76 +490,69 @@ State 23
 
    22 item_fn: PIPE fn_sources_params ident . fn_decl maybe_type_clause fn_block
 
-    '('  shift, and go to state 35
+    '('  shift, and go to state 34
 
-    fn_decl    go to state 36
-    fn_params  go to state 37
+    fn_decl    go to state 35
+    fn_params  go to state 36
 
 
 State 24
 
-    5 stmts: stmts ';' stmt . ';'
+    9 assignment: type ident '=' . expr
 
-    ';'  shift, and go to state 38
+    LIT_INTEGER  shift, and go to state 25
+    LIT_FLOAT    shift, and go to state 26
+    '('          shift, and go to state 27
+    "true"       shift, and go to state 28
+    "false"      shift, and go to state 29
+
+    expr  go to state 37
+    lit   go to state 31
 
 
 State 25
-
-    9 assignment: type ident '=' . expr
-
-    LIT_INTEGER  shift, and go to state 26
-    LIT_FLOAT    shift, and go to state 27
-    '('          shift, and go to state 28
-    "true"       shift, and go to state 29
-    "false"      shift, and go to state 30
-
-    expr  go to state 39
-    lit   go to state 32
-
-
-State 26
 
    17 lit: LIT_INTEGER .
 
     $default  reduce using rule 17 (lit)
 
 
-State 27
+State 26
 
    18 lit: LIT_FLOAT .
 
     $default  reduce using rule 18 (lit)
 
 
-State 28
+State 27
 
    15 expr: '(' . expr ')'
 
-    LIT_INTEGER  shift, and go to state 26
-    LIT_FLOAT    shift, and go to state 27
-    '('          shift, and go to state 28
-    "true"       shift, and go to state 29
-    "false"      shift, and go to state 30
+    LIT_INTEGER  shift, and go to state 25
+    LIT_FLOAT    shift, and go to state 26
+    '('          shift, and go to state 27
+    "true"       shift, and go to state 28
+    "false"      shift, and go to state 29
 
-    expr  go to state 40
-    lit   go to state 32
+    expr  go to state 38
+    lit   go to state 31
 
 
-State 29
+State 28
 
    19 lit: "true" .
 
     $default  reduce using rule 19 (lit)
 
 
-State 30
+State 29
 
    20 lit: "false" .
 
     $default  reduce using rule 20 (lit)
 
 
-State 31
+State 30
 
     8 assignment: ident '=' expr .
    11 expr: expr . '+' expr
@@ -571,39 +560,39 @@ State 31
    13     | expr . '*' expr
    14     | expr . '/' expr
 
-    '+'  shift, and go to state 41
-    '-'  shift, and go to state 42
-    '*'  shift, and go to state 43
-    '/'  shift, and go to state 44
+    '+'  shift, and go to state 39
+    '-'  shift, and go to state 40
+    '*'  shift, and go to state 41
+    '/'  shift, and go to state 42
 
     $default  reduce using rule 8 (assignment)
 
 
-State 32
+State 31
 
    16 expr: lit .
 
     $default  reduce using rule 16 (expr)
 
 
-State 33
+State 32
 
    32 fn_sources_params: '(' maybe_fn_sources ')' .
 
     $default  reduce using rule 32 (fn_sources_params)
 
 
-State 34
+State 33
 
    36 fn_sources: fn_sources ',' . fn_source
 
     IDENT  shift, and go to state 1
 
-    fn_source  go to state 45
+    fn_source  go to state 43
     ident      go to state 14
 
 
-State 35
+State 34
 
    39 fn_params: '(' . maybe_params ')'
 
@@ -611,38 +600,31 @@ State 35
 
     $default  reduce using rule 41 (maybe_params)
 
-    maybe_params  go to state 46
-    params        go to state 47
-    param         go to state 48
-    ident         go to state 49
+    maybe_params  go to state 44
+    params        go to state 45
+    param         go to state 46
+    ident         go to state 47
 
 
-State 36
+State 35
 
    22 item_fn: PIPE fn_sources_params ident fn_decl . maybe_type_clause fn_block
 
-    ':'  shift, and go to state 50
+    ':'  shift, and go to state 48
 
     $default  reduce using rule 24 (maybe_type_clause)
 
-    maybe_type_clause  go to state 51
+    maybe_type_clause  go to state 49
 
 
-State 37
+State 36
 
    38 fn_decl: fn_params .
 
     $default  reduce using rule 38 (fn_decl)
 
 
-State 38
-
-    5 stmts: stmts ';' stmt ';' .
-
-    $default  reduce using rule 5 (stmts)
-
-
-State 39
+State 37
 
     9 assignment: type ident '=' expr .
    11 expr: expr . '+' expr
@@ -650,15 +632,15 @@ State 39
    13     | expr . '*' expr
    14     | expr . '/' expr
 
-    '+'  shift, and go to state 41
-    '-'  shift, and go to state 42
-    '*'  shift, and go to state 43
-    '/'  shift, and go to state 44
+    '+'  shift, and go to state 39
+    '-'  shift, and go to state 40
+    '*'  shift, and go to state 41
+    '/'  shift, and go to state 42
 
     $default  reduce using rule 9 (assignment)
 
 
-State 40
+State 38
 
    11 expr: expr . '+' expr
    12     | expr . '-' expr
@@ -666,138 +648,138 @@ State 40
    14     | expr . '/' expr
    15     | '(' expr . ')'
 
-    '+'  shift, and go to state 41
-    '-'  shift, and go to state 42
-    '*'  shift, and go to state 43
-    '/'  shift, and go to state 44
-    ')'  shift, and go to state 52
+    '+'  shift, and go to state 39
+    '-'  shift, and go to state 40
+    '*'  shift, and go to state 41
+    '/'  shift, and go to state 42
+    ')'  shift, and go to state 50
+
+
+State 39
+
+   11 expr: expr '+' . expr
+
+    LIT_INTEGER  shift, and go to state 25
+    LIT_FLOAT    shift, and go to state 26
+    '('          shift, and go to state 27
+    "true"       shift, and go to state 28
+    "false"      shift, and go to state 29
+
+    expr  go to state 51
+    lit   go to state 31
+
+
+State 40
+
+   12 expr: expr '-' . expr
+
+    LIT_INTEGER  shift, and go to state 25
+    LIT_FLOAT    shift, and go to state 26
+    '('          shift, and go to state 27
+    "true"       shift, and go to state 28
+    "false"      shift, and go to state 29
+
+    expr  go to state 52
+    lit   go to state 31
 
 
 State 41
 
-   11 expr: expr '+' . expr
+   13 expr: expr '*' . expr
 
-    LIT_INTEGER  shift, and go to state 26
-    LIT_FLOAT    shift, and go to state 27
-    '('          shift, and go to state 28
-    "true"       shift, and go to state 29
-    "false"      shift, and go to state 30
+    LIT_INTEGER  shift, and go to state 25
+    LIT_FLOAT    shift, and go to state 26
+    '('          shift, and go to state 27
+    "true"       shift, and go to state 28
+    "false"      shift, and go to state 29
 
     expr  go to state 53
-    lit   go to state 32
+    lit   go to state 31
 
 
 State 42
 
-   12 expr: expr '-' . expr
+   14 expr: expr '/' . expr
 
-    LIT_INTEGER  shift, and go to state 26
-    LIT_FLOAT    shift, and go to state 27
-    '('          shift, and go to state 28
-    "true"       shift, and go to state 29
-    "false"      shift, and go to state 30
+    LIT_INTEGER  shift, and go to state 25
+    LIT_FLOAT    shift, and go to state 26
+    '('          shift, and go to state 27
+    "true"       shift, and go to state 28
+    "false"      shift, and go to state 29
 
     expr  go to state 54
-    lit   go to state 32
+    lit   go to state 31
 
 
 State 43
-
-   13 expr: expr '*' . expr
-
-    LIT_INTEGER  shift, and go to state 26
-    LIT_FLOAT    shift, and go to state 27
-    '('          shift, and go to state 28
-    "true"       shift, and go to state 29
-    "false"      shift, and go to state 30
-
-    expr  go to state 55
-    lit   go to state 32
-
-
-State 44
-
-   14 expr: expr '/' . expr
-
-    LIT_INTEGER  shift, and go to state 26
-    LIT_FLOAT    shift, and go to state 27
-    '('          shift, and go to state 28
-    "true"       shift, and go to state 29
-    "false"      shift, and go to state 30
-
-    expr  go to state 56
-    lit   go to state 32
-
-
-State 45
 
    36 fn_sources: fn_sources ',' fn_source .
 
     $default  reduce using rule 36 (fn_sources)
 
 
-State 46
+State 44
 
    39 fn_params: '(' maybe_params . ')'
 
-    ')'  shift, and go to state 57
+    ')'  shift, and go to state 55
 
 
-State 47
+State 45
 
    40 maybe_params: params .
    43 params: params . ',' param
 
-    ','  shift, and go to state 58
+    ','  shift, and go to state 56
 
     $default  reduce using rule 40 (maybe_params)
 
 
-State 48
+State 46
 
    42 params: param .
 
     $default  reduce using rule 42 (params)
 
 
-State 49
+State 47
 
    44 param: ident . ident
 
     IDENT  shift, and go to state 1
 
-    ident  go to state 59
+    ident  go to state 57
 
 
-State 50
+State 48
 
    23 maybe_type_clause: ':' . fn_type_clause
 
     IDENT  shift, and go to state 1
-    '('    shift, and go to state 60
+    '('    shift, and go to state 58
 
-    fn_type_clause  go to state 61
-    type            go to state 62
-    ident           go to state 63
+    fn_type_clause  go to state 59
+    type            go to state 60
+    ident           go to state 61
 
 
-State 51
+State 49
 
    22 item_fn: PIPE fn_sources_params ident fn_decl maybe_type_clause . fn_block
 
-    '{'  shift, and go to state 64
+    '{'  shift, and go to state 62
 
-    fn_block  go to state 65
+    fn_block  go to state 63
 
 
-State 52
+State 50
 
    15 expr: '(' expr ')' .
 
     $default  reduce using rule 15 (expr)
 
 
-State 53
+State 51
 
    11 expr: expr . '+' expr
    11     | expr '+' expr .
@@ -805,13 +787,13 @@ State 53
    13     | expr . '*' expr
    14     | expr . '/' expr
 
-    '*'  shift, and go to state 43
-    '/'  shift, and go to state 44
+    '*'  shift, and go to state 41
+    '/'  shift, and go to state 42
 
     $default  reduce using rule 11 (expr)
 
 
-State 54
+State 52
 
    11 expr: expr . '+' expr
    12     | expr . '-' expr
@@ -819,13 +801,13 @@ State 54
    13     | expr . '*' expr
    14     | expr . '/' expr
 
-    '*'  shift, and go to state 43
-    '/'  shift, and go to state 44
+    '*'  shift, and go to state 41
+    '/'  shift, and go to state 42
 
     $default  reduce using rule 12 (expr)
 
 
-State 55
+State 53
 
    11 expr: expr . '+' expr
    12     | expr . '-' expr
@@ -836,7 +818,7 @@ State 55
     $default  reduce using rule 13 (expr)
 
 
-State 56
+State 54
 
    11 expr: expr . '+' expr
    12     | expr . '-' expr
@@ -847,63 +829,63 @@ State 56
     $default  reduce using rule 14 (expr)
 
 
-State 57
+State 55
 
    39 fn_params: '(' maybe_params ')' .
 
     $default  reduce using rule 39 (fn_params)
 
 
-State 58
+State 56
 
    43 params: params ',' . param
 
     IDENT  shift, and go to state 1
 
-    param  go to state 66
-    ident  go to state 49
+    param  go to state 64
+    ident  go to state 47
 
 
-State 59
+State 57
 
    44 param: ident ident .
 
     $default  reduce using rule 44 (param)
 
 
-State 60
+State 58
 
    26 fn_type_clause: '(' . types_list ')'
 
     IDENT  shift, and go to state 1
 
-    types_list  go to state 67
-    type        go to state 68
-    ident       go to state 63
+    types_list  go to state 65
+    type        go to state 66
+    ident       go to state 61
 
 
-State 61
+State 59
 
    23 maybe_type_clause: ':' fn_type_clause .
 
     $default  reduce using rule 23 (maybe_type_clause)
 
 
-State 62
+State 60
 
    25 fn_type_clause: type .
 
     $default  reduce using rule 25 (fn_type_clause)
 
 
-State 63
+State 61
 
    29 type: ident .
 
     $default  reduce using rule 29 (type)
 
 
-State 64
+State 62
 
    30 fn_block: '{' . maybe_stmts '}'
 
@@ -912,88 +894,96 @@ State 64
 
     $default  reduce using rule 46 (maybe_stmts)
 
-    stmts        go to state 69
+    stmts        go to state 67
     stmt         go to state 5
     assignment   go to state 6
     block_stmt   go to state 7
     item_fn      go to state 8
     type         go to state 9
     ident        go to state 10
-    maybe_stmts  go to state 70
+    maybe_stmts  go to state 68
 
 
-State 65
+State 63
 
    22 item_fn: PIPE fn_sources_params ident fn_decl maybe_type_clause fn_block .
 
     $default  reduce using rule 22 (item_fn)
 
 
-State 66
+State 64
 
    43 params: params ',' param .
 
     $default  reduce using rule 43 (params)
 
 
-State 67
+State 65
 
    26 fn_type_clause: '(' types_list . ')'
    28 types_list: types_list . ',' type
 
-    ')'  shift, and go to state 71
-    ','  shift, and go to state 72
+    ')'  shift, and go to state 69
+    ','  shift, and go to state 70
 
 
-State 68
+State 66
 
    27 types_list: type .
 
     $default  reduce using rule 27 (types_list)
 
 
-State 69
+State 67
 
-    5 stmts: stmts . ';' stmt ';'
+    5 stmts: stmts . stmt
    47 maybe_stmts: stmts .
 
-    ';'  shift, and go to state 16
+    IDENT  shift, and go to state 1
+    PIPE   shift, and go to state 2
 
     $default  reduce using rule 47 (maybe_stmts)
 
+    stmt        go to state 16
+    assignment  go to state 6
+    block_stmt  go to state 7
+    item_fn     go to state 8
+    type        go to state 9
+    ident       go to state 10
 
-State 70
+
+State 68
 
    30 fn_block: '{' maybe_stmts . '}'
 
-    '}'  shift, and go to state 73
+    '}'  shift, and go to state 71
 
 
-State 71
+State 69
 
    26 fn_type_clause: '(' types_list ')' .
 
     $default  reduce using rule 26 (fn_type_clause)
 
 
-State 72
+State 70
 
    28 types_list: types_list ',' . type
 
     IDENT  shift, and go to state 1
 
-    type   go to state 74
-    ident  go to state 63
+    type   go to state 72
+    ident  go to state 61
 
 
-State 73
+State 71
 
    30 fn_block: '{' maybe_stmts '}' .
 
     $default  reduce using rule 30 (fn_block)
 
 
-State 74
+State 72
 
    28 types_list: types_list ',' type .
 
