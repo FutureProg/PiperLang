@@ -7,6 +7,7 @@
 #include <llvm/IR/IRBuilder.h>
 
 llvm::Function* GenVisitor::visit(NFunction* node, uint64_t flag){	
+	debug("Visit Function\n");
 	std::vector<llvm::Type*> args;
 	for(int i = 0; i < node->args.size();i++){
 		llvm::Type* type = getTypeFromName(node->args[i]->type->name.c_str());
@@ -40,10 +41,12 @@ llvm::BasicBlock*  GenVisitor::visit(NBlock* node, uint64_t flag) {
 				break;
 		}			
 	}	
+	debug("Exit Block\n");
 	return block;
 }
 
 void GenVisitor::visit(NVariableDeclaration* node, uint64_t flag){	
+	debug("Visit Variable Declaration\n");
 	llvm::Type* type = getTypeFromName(node->type->name.c_str());
 	std::string name = node->name->name; // TO-DO: deal with checking if it's decl already or not			
 	llvm::Value* value = visit(node->expression,V_FLAG_NONE);	
@@ -53,6 +56,7 @@ void GenVisitor::visit(NVariableDeclaration* node, uint64_t flag){
 }
 
 llvm::Value* GenVisitor::visit(NExpression* expr, uint64_t flag){
+	debug("Visit Expression\n");
 	switch(expr->expression_type){
 		case EXPR_TYPE_BIN_OP:
 		return visit((NBinaryOp*)expr,flag);
@@ -63,9 +67,11 @@ llvm::Value* GenVisitor::visit(NExpression* expr, uint64_t flag){
 		case EXPR_TYPE_CONST_FLOAT:
 		return visit((NFloat*)expr,flag);
 	}	 
+	debug("Exit Expression\n");
 }
 
 llvm::Value* GenVisitor::visit(NBinaryOp* node, uint64_t flag){
+	debug("Visit Binary Operation\n");
 	llvm::Value* lhs = visit(node->lhs,flag);
 	llvm::Value* rhs = visit(node->rhs,flag);
 	switch(node->op){
@@ -78,31 +84,37 @@ llvm::Value* GenVisitor::visit(NBinaryOp* node, uint64_t flag){
 		case OP_MULT:
 		return _builder->CreateFMul(lhs,rhs);
 		default:
-		printf("Invalid operator provided to expression\n");
+		fprintf(stderr, "Invalid operator provided to expression\n");
 		exit(0);
 	}
+	debug("Exit Binary Operation\n");
 }
 
 llvm::Value* GenVisitor::visit(NInteger* node, uint64_t flag){
+	debug("Visit Integer\n");
 	return llvm::ConstantInt::get(_builder->getInt32Ty(),node->value);
 }
 
 llvm::Value* GenVisitor::visit(NFloat* node, uint64_t flag){
+	debug("Visit Float\n");
 	return llvm::ConstantFP::get(_builder->getFloatTy(),node->value);
 }
 
 llvm::Value* GenVisitor::visit(NBool* node, uint64_t flag){
+	debug("Visit Bool\n");
 	return llvm::ConstantInt::get(_builder->getInt32Ty(),node->value);
 }
 
-void GenVisitor::visit(NAssignment* node, uint64_t flag){
-	
+void GenVisitor::visit(NAssignment* node, uint64_t flag){	
+	debug("Visit Assignment\n");
 }
 
 llvm::Type* GenVisitor::getTypeFromName(const char* name){
+	debug("Visit getTypeFromName\n");
 	if(strcmp(name,"int") == 0){
 		return llvm::Type::getInt32Ty(_builder->getContext());
 	}
 	const llvm::Value* value = _scope.getVar(name);
+	debug("Exit getTypeFromName\n");
 	return value->getType();
 }
