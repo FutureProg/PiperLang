@@ -107,10 +107,9 @@ int main(int argc, char **argv) {
   llvm::LLVMContext& context = llvm::getGlobalContext();  
   llvm::IRBuilder<> builder(context);    
 
-  printf("Working");
   GenVisitor generator(&builder);  
   generator.visit(root,V_FLAG_ENTER);  
-  printf("Done");
+  
   return ret;
 }
 

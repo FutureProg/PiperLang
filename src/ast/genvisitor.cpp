@@ -1,4 +1,5 @@
 #include "genvisitor.h"
+#include "../common/debug.h"
 
 #include <iostream>
 #include <llvm/IR/Module.h>
@@ -17,7 +18,8 @@ llvm::Function* GenVisitor::visit(NFunction* node, uint64_t flag){
 	return func;
 }
 
-llvm::BasicBlock*  GenVisitor::visit(NBlock* node, uint64_t flag) {	
+llvm::BasicBlock*  GenVisitor::visit(NBlock* node, uint64_t flag) {		
+	debug("Visit Block\n");
 	llvm::BasicBlock *block = llvm::BasicBlock::Create(_builder->getContext());		
 	_builder->SetInsertPoint(block);
 	for(int i = 0; i < node->statements.size();i++){	
