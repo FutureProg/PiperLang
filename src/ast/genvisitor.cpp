@@ -17,7 +17,7 @@ llvm::Function* GenVisitor::visit(NFunction* node, uint64_t flag){
 	return func;
 }
 
-llvm::BasicBlock*  GenVisitor::visit(NBlock* node, uint64_t flag){
+llvm::BasicBlock*  GenVisitor::visit(NBlock* node, uint64_t flag) {	
 	llvm::BasicBlock *block = llvm::BasicBlock::Create(_builder->getContext());		
 	_builder->SetInsertPoint(block);
 	for(int i = 0; i < node->statements.size();i++){	
@@ -67,7 +67,7 @@ llvm::Value* GenVisitor::visit(NBinaryOp* node, uint64_t flag){
 	llvm::Value* lhs = visit(node->lhs,flag);
 	llvm::Value* rhs = visit(node->rhs,flag);
 	switch(node->op){
-		case OP_ADD:
+		case OP_ADD:		
 		return _builder->CreateFAdd(lhs,rhs);		
 		case OP_SUB:
 		return _builder->CreateFSub(lhs,rhs);
