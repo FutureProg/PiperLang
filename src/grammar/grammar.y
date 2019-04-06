@@ -123,7 +123,7 @@ document:
 stmts: 
 stmt			{ $$ = new NBlock();  $$->statements.push_back($1); }
 | stmt ';'		{ $$ = new NBlock();  $$->statements.push_back($1); }
-| stmts stmt { $$->statements.push_back($2); }
+| stmts stmt ';' { $$->statements.push_back($2); }
 ;
 
 stmt:

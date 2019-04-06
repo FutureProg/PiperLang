@@ -7,6 +7,7 @@ DEBUG = -D__PIPER_DEBUG__
 all:
 	$(LEX) -o lex.yy.cpp lexer.l
 	$(YACC) grammar.y -d -t --report=state --graph -o grammar.tab.cpp
+	dot -Tpng grammar.dot -o grammar.png
 	$(CXX) grammar.tab.cpp $(FLAGS) $(DEBUG) lex.yy.cpp ../ast/genvisitor.cpp ../parser-lalr-main.cpp -o grammar
 
 clean:

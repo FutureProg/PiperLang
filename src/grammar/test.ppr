@@ -1,2 +1,4 @@
-int x = 3;
-int y = 4;
+pipe SystemPipes printArgs(int arg): int {
+	int x = 3;
+	int y = 4;
+}
